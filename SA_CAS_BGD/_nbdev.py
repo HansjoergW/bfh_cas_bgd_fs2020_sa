@@ -6,8 +6,8 @@ index = {"dummy": "00_core.ipynb"}
 
 modules = ["core.py"]
 
-doc_url = "https://Hansjoerg Wingeier.github.io/SA_CAS_BGD/"
+doc_url = "https://HansjoergW.github.io/SA_CAS_BGD/"
 
-git_url = "https://github.com/Hansjoerg Wingeier/SA_CAS_BGD/tree/master/"
+git_url = "https://github.com/HansjoergW/SA_CAS_BGD/tree/master/"
 
 def custom_doc_links(name): return None
