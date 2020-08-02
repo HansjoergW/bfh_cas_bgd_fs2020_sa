@@ -2,7 +2,7 @@
 > "Semesterarbeit" for CAS BigData at BFH, Switzerland.
 
 
-```python
+```
 #hide
 ```
 
