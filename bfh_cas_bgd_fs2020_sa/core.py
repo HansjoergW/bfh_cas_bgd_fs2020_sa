@@ -4,4 +4,4 @@ __all__ = ['dummy']
 
 # Cell
 def dummy():
-    return 1
+    return 3
