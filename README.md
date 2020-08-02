@@ -1,4 +1,11 @@
-# nbdev template
+# Semesterarbeit CAS BGD FS 2020 BFH
+> "Semesterarbeit" for CAS BigData at BFH, Switzerland.
 
-Use this template to more easily create your nbdev project.
 
+```python
+#hide
+```
+
+## ...
+
+Fill me in please! Don't forget code examples:
