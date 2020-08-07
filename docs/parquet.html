@@ -173,12 +173,6 @@ Each zip file contains all quarterly and yearly reports that were filled during 
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Working-with-the-data">Working with the data<a class="anchor-link" href="#Working-with-the-data"> </a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Unpacking">Unpacking<a class="anchor-link" href="#Unpacking"> </a></h3><blockquote><p>In a first step, the content of the files are unzipped and placed in separated folders</p>
 </blockquote>
 
@@ -249,7 +243,7 @@ Temp folder:  748.04MB
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Using-Parquet">Using Parquet<a class="anchor-link" href="#Using-Parquet"> </a></h3><blockquote><p>let us read a csv file and store it as a parquet file</p>
+<h2 id="Using-Parquet">Using Parquet<a class="anchor-link" href="#Using-Parquet"> </a></h2><blockquote><p>let us read a csv file and store it as a parquet file</p>
 <ul>
 <li>API doc of the csv reader:<a href="https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameReader.csv&gt;">https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameReader.csv&gt;</a> * API doc of the parquet writer:<a href="https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameWriter.parquet">https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameWriter.parquet</a></li>
 </ul>
@@ -312,7 +306,7 @@ Temp folder:  748.04MB
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Reading-a-CSV-file">Reading a CSV file<a class="anchor-link" href="#Reading-a-CSV-file"> </a></h4><blockquote><p>As a first step, the csv file has to be loaded into a spark df. 
+<h3 id="Reading-a-CSV-file">Reading a CSV file<a class="anchor-link" href="#Reading-a-CSV-file"> </a></h3><blockquote><p>As a first step, the csv file has to be loaded into a spark df. 
 The file has a header row and the columns are separated by a TAB (\t).</p>
 </blockquote>
 
@@ -585,7 +579,7 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="simple-write-as-Parquet">simple write as Parquet<a class="anchor-link" href="#simple-write-as-Parquet"> </a></h4><blockquote><p>As first version the dataframe is stored directly in parquet format without additional options</p>
+<h3 id="simple-write-as-Parquet">simple write as Parquet<a class="anchor-link" href="#simple-write-as-Parquet"> </a></h3><blockquote><p>As first version the dataframe is stored directly in parquet format without additional options</p>
 </blockquote>
 
 </div>
@@ -678,7 +672,7 @@ root
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="using-partitions">using partitions<a class="anchor-link" href="#using-partitions"> </a></h4><blockquote><p>Parquet can also store the data in different partitions wich will create a new directory for every partition.</p>
+<h3 id="writing-using-partitions">writing using partitions<a class="anchor-link" href="#writing-using-partitions"> </a></h3><blockquote><p>Parquet can also store the data in different partitions wich will create a new directory for every partition.</p>
 </blockquote>
 
 </div>
@@ -812,6 +806,58 @@ root
  &#39;_SUCCESS&#39;]</pre>
 </div>
 
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="reading-parquet">reading parquet<a class="anchor-link" href="#reading-parquet"> </a></h3><blockquote><p>reading parquet is even simpler as reading a cvs since parquet contains metainformation about the file structure</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_test_num</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">parquet_folder_pure</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;number of rows :&#39;</span><span class="p">,</span> <span class="n">df_test_num</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="n">df_test_num</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>number of rows : 2325267
+root
+ |-- adsh: string (nullable = true)
+ |-- tag: string (nullable = true)
+ |-- version: string (nullable = true)
+ |-- coreg: integer (nullable = true)
+ |-- ddate: date (nullable = true)
+ |-- qtrs: integer (nullable = true)
+ |-- uom: string (nullable = true)
+ |-- value: double (nullable = true)
+ |-- footnote: string (nullable = true)
+
+</pre>
+</div>
 </div>
 
 </div>
