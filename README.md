@@ -2,9 +2,7 @@
 > "Semesterarbeit" for CAS BigData at BFH, Switzerland.
 
 
-```python
 #hide
-```
 
 These GitHub project contains all Juypter Notebooks which run directly on my laptop. 
 
