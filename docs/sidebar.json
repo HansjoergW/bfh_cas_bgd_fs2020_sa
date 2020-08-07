@@ -1,6 +1,7 @@
 {
   "bfh_cas_bgd_fs2020_sa": {
     "Overview": "/",
-    "core": "/core"
+    "core": "/core",
+    "Parquet": "/parquet"
   }
 }

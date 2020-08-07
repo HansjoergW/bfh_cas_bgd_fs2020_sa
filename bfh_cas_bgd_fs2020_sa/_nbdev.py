@@ -2,7 +2,9 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"dummy": "00_core.ipynb"}
+index = {"get_spark_session": "00_core.ipynb",
+         "get_directory_size": "00_core.ipynb",
+         "get_size_format": "00_core.ipynb"}
 
 modules = ["core.py"]
 
