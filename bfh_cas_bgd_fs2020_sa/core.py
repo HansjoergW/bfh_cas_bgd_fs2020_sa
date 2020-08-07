@@ -18,7 +18,10 @@ def get_spark_session(appname = "default"):
 # code copied from https://www.thepythoncode.com/article/get-directory-size-in-bytes-using-python
 import os
 def get_directory_size(directory):
-    """Returns the `directory` size in bytes."""
+    """
+    Returns the `directory` size in bytes.
+    code copied from https://www.thepythoncode.com/article/get-directory-size-in-bytes-using-python
+    """
     total = 0
     try:
         # print("[+] Getting the size of", directory)
@@ -45,6 +48,7 @@ def get_size_format(b, factor=1024, suffix="B"):
     e.g:
         1253656 => '1.20MB'
         1253656678 => '1.17GB'
+    code copied from https://www.thepythoncode.com/article/get-directory-size-in-bytes-using-python
     """
     for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
         if b < factor:
