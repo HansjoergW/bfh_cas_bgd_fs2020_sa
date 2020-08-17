@@ -234,7 +234,7 @@ There is a zip-file for each quarter since 2009, but only in files starting from
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="using-parkContext.parallelize-to-parallize-with-spark">using parkContext.parallelize to parallize with spark<a class="anchor-link" href="#using-parkContext.parallelize-to-parallize-with-spark"> </a></h3>
+<h3 id="using-parkContext.parallelize-to-parallelize-with-spark">using parkContext.parallelize to parallelize with spark<a class="anchor-link" href="#using-parkContext.parallelize-to-parallelize-with-spark"> </a></h3>
 </div>
 </div>
 </div>
@@ -349,7 +349,8 @@ size output folder:   1.53GB
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It should be possible to use user defined functions and a sparkdataframe with the urls to download the files. Let us find out how this could look.</p>
+<p>It should be possible to use user defined functions and a sparkdataframe with the urls to download the files. Let us find out how this could look. 
+An simple example on how to define a udf can be found here: <a href="https://changhsinlee.com/pyspark-udf/">https://changhsinlee.com/pyspark-udf/</a></p>
 
 </div>
 </div>
@@ -398,6 +399,13 @@ size output folder:   1.53GB
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, the downloader function is adapted. It now returns also a result and just accepts one parameter.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -408,7 +416,7 @@ size output folder:   1.53GB
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">downloader_function</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="c1"># From URL construct the destination path and filename.</span>
     <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span> 
     
     <span class="c1"># Check if the file has already been downloaded.</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
@@ -416,7 +424,7 @@ size output folder:   1.53GB
     
     <span class="c1"># Download and write to file.</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">urldata</span><span class="p">,</span>\
+        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span> <span class="k">as</span> <span class="n">urldata</span><span class="p">,</span>\
                 <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">urldata</span><span class="p">,</span> <span class="n">out_file</span><span class="p">)</span>
             <span class="k">return</span> <span class="s2">&quot;success&quot;</span>
@@ -431,6 +439,13 @@ size output folder:   1.53GB
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In order to use the above download function as UDF, it needs to be converted/registered as a udf-function. This is a one liner.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -449,6 +464,13 @@ size output folder:   1.53GB
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, the we execute it by simply using an SQL statment, which uses our udf function. With this approach we can also return a result for every url.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -459,6 +481,7 @@ size output folder:   1.53GB
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">result_df</span> <span class="o">=</span>  <span class="n">download_urls_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">downloader_udf</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">))</span>
 <span class="n">result_df_failed</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;result=&#39;failed&#39;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result_df_failed</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result_df_failed</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
 <span class="n">execution_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;execution time:      &quot;</span><span class="p">,</span> <span class="n">execution_time</span><span class="p">)</span>
@@ -475,8 +498,9 @@ size output folder:   1.53GB
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>[Row(url=&#39;https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q3.zip&#39;, result=&#39;failed&#39;), Row(url=&#39;https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q4.zip&#39;, result=&#39;failed&#39;)]
-execution time:       15.537001848220825
+<pre>3
+[Row(url=&#39;https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q3.zip&#39;, result=&#39;failed&#39;), Row(url=&#39;https://www.sec.gov/files/dera/data/financial-statement-data-sets/2020q4.zip&#39;, result=&#39;failed&#39;)]
+execution time:       330.34656715393066
 size output folder:   1.53GB
 </pre>
 </div>
@@ -488,6 +512,13 @@ size output folder:   1.53GB
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With this approach, it took 5.5 minutes, but that is more likely due to slower transport of the data over the network than to due to the fact that this version used a UDF.</p>
+
+</div>
+</div>
+</div>
 </div>
  
 
