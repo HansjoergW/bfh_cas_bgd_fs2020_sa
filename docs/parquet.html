@@ -448,7 +448,8 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>As we can see in the next cell, we were only partially sucessfull. The reader was able to detect that qtrs is an integer and that value is a double. But it failed to recognize that ddate is actually a date and that coreg should be an int. That was to be expected:ddate looks like int and the coreg field is only used in special situations, so there is a good change that its field is None for all entries in the file. It looks as if we have to define the schema by hand</p>
+<blockquote><p>As we can see in the next cell, we were only partially sucessfull. The reader was able to detect that qtrs is an integer and that value is a double. But it failed to recognize that ddate is actually a date and that coreg should be an int. That was to be expected:ddate looks like an int and the coreg field is only used in special situations, so there is a good change that its content is None for all entries in the file. 
+It looks as if we have to define the schema by hand</p>
 </blockquote>
 
 </div>
@@ -664,7 +665,7 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>Parquet was able to compress the data down to about 10% of the orginal size. It splitted the data up in 8 different data files. so every file is containing approximatly 300'000 data rows and has a size of about 3MB</p>
+<blockquote><p>Parquet was able to compress the data down to about 10% of the orginal size. It splitted the data up in 8 different data files. So every file is containing approximatly 300'000 data rows and has a size of about 3MB</p>
 </blockquote>
 
 </div>
