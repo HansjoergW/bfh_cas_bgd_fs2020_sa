@@ -15,6 +15,9 @@ entries:
     - output: web,pdf
       title: Parquet
       url: /parquet
+    - output: web,pdf
+      title: Download Data From SEC
+      url: /download_from_sec
     output: web
     title: bfh_cas_bgd_fs2020_sa
   output: web
