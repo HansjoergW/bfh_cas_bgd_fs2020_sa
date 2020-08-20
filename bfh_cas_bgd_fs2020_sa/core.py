@@ -12,7 +12,12 @@ def get_spark_session(appname = "default"):
     appname - default is "default"
     """
     findspark.init()
-    return SparkSession.builder.appName(appname).getOrCreate()
+    return SparkSession.builder \
+                        .appName(appname) \
+                        .getOrCreate()
+
+#                         .config("spark.executor.memory","12g")\
+#                         .config("spark.driver.memory","4g")\
 
 # Cell
 # code copied from https://www.thepythoncode.com/article/get-directory-size-in-bytes-using-python
