@@ -3,6 +3,7 @@
     "Overview": "/",
     "core": "/00_core",
     "00_01_Parquet_Basics": "/01_Parquet_Basics",
-    "01_01_Download_SEC_Data": "/01_Download_SEC_Data"
+    "01_01_Download_SEC_Data": "/01_Download_SEC_Data",
+    "01_02_Join_SEC_Data": "/02_Join_SEC_Data"
   }
 }

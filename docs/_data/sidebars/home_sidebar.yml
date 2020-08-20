@@ -18,6 +18,9 @@ entries:
     - output: web,pdf
       title: 01_01_Download_SEC_Data
       url: /01_Download_SEC_Data
+    - output: web,pdf
+      title: 01_02_Join_SEC_Data
+      url: /02_Join_SEC_Data
     output: web
     title: bfh_cas_bgd_fs2020_sa
   output: web
