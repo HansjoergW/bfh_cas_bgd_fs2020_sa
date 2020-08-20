@@ -10,14 +10,14 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
+      title: Parquet
+      url: /01_Parquet_Basics
+    - output: web,pdf
       title: core
       url: /core
     - output: web,pdf
-      title: Parquet
-      url: /parquet
-    - output: web,pdf
       title: Download Data From SEC
-      url: /download_from_sec
+      url: /01_Download_SEC_Data
     output: web
     title: bfh_cas_bgd_fs2020_sa
   output: web
