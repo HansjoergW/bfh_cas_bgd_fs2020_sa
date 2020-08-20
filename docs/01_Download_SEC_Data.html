@@ -1,6 +1,6 @@
 ---
 
-title: Download Data From SEC
+title: 01_01_Download_SEC_Data
 
 keywords: fastai
 sidebar: home_sidebar
@@ -95,7 +95,7 @@ There is a zip-file for each quarter since 2009, but only in files starting from
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="prepare-download-urls">prepare download urls<a class="anchor-link" href="#prepare-download-urls"> </a></h2>
+<h2 id="Prepare-download-urls">Prepare download urls<a class="anchor-link" href="#Prepare-download-urls"> </a></h2>
 </div>
 </div>
 </div>
@@ -167,7 +167,7 @@ There is a zip-file for each quarter since 2009, but only in files starting from
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="downloading-with-spark">downloading with spark<a class="anchor-link" href="#downloading-with-spark"> </a></h2>
+<h2 id="Downloading-with-spark">Downloading with spark<a class="anchor-link" href="#Downloading-with-spark"> </a></h2>
 </div>
 </div>
 </div>
@@ -234,13 +234,13 @@ There is a zip-file for each quarter since 2009, but only in files starting from
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="using-parkContext.parallelize-to-parallelize-with-spark">using parkContext.parallelize to parallelize with spark<a class="anchor-link" href="#using-parkContext.parallelize-to-parallelize-with-spark"> </a></h3>
+<h3 id="using-RDDs-to-parallelize-with-spark">using RDDs to parallelize with spark<a class="anchor-link" href="#using-RDDs-to-parallelize-with-spark"> </a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The blog post "<a href="https://medium.com/@joshua_robinson/parallelizing-downloads-with-spark-16bab8e337eb">https://medium.com/@joshua_robinson/parallelizing-downloads-with-spark-16bab8e337eb</a>" shows how the download of resources can be parallelized with spark.</p>
+<p>The blog post "<a href="https://medium.com/@joshua_robinson/parallelizing-downloads-with-spark-16bab8e337eb">https://medium.com/@joshua_robinson/parallelizing-downloads-with-spark-16bab8e337eb</a>" shows how the download of resources can be parallelized with spark. This version uses Spark's lowlevel RDD (Resilient Distributed Datasets) API.</p>
 
 </div>
 </div>
@@ -343,7 +343,7 @@ size output folder:   1.53GB
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="using-user-defined-functions">using user defined functions<a class="anchor-link" href="#using-user-defined-functions"> </a></h3>
+<h3 id="Using-user-defined-functions">Using user defined functions<a class="anchor-link" href="#Using-user-defined-functions"> </a></h3>
 </div>
 </div>
 </div>
@@ -357,7 +357,8 @@ An simple example on how to define a udf can be found here: <a href="https://cha
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>As a first step, the download_urls list has to be converted into a spark dataframe. This can be done with one line, but since we want to have a meaningful columnname, the default columnname "value" is changed to "url"</p>
+<p>As a first step, the download_urls list has to be converted into a spark dataframe. This can be done with one line, but since we want to have a meaningful columnname, the default columnname "value" is changed to "url".<br>
+In this version, spark's Dataframe API is used to do the job.</p>
 
 </div>
 </div>
@@ -369,7 +370,8 @@ An simple example on how to define a udf can be found here: <a href="https://cha
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StringType</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># convert the list into a Spark dataframe</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StringType</span>
 
 <span class="n">download_urls_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">download_urls</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())</span>
 <span class="n">download_urls_df</span> <span class="o">=</span> <span class="n">download_urls_df</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span><span class="s2">&quot;url&quot;</span><span class="p">)</span>
@@ -479,6 +481,8 @@ An simple example on how to define a udf can be found here: <a href="https://cha
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># we just do a &quot;select&quot; and as second column, we are going to return the result of the applied &quot;downloader_udf&quot; function</span>
 <span class="n">result_df</span> <span class="o">=</span>  <span class="n">download_urls_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">downloader_udf</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">))</span>
 <span class="n">result_df_failed</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;result=&#39;failed&#39;&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result_df_failed</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
@@ -514,7 +518,7 @@ size output folder:   1.53GB
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>With this approach, it took 5.5 minutes, but that is more likely due to slower transport of the data over the network than to due to the fact that this version used a UDF.</p>
+<p>With this approach, it took 5.5 minutes, but that is more likely due to slower transport of the data over the network than due to the fact that this version used a UDF.</p>
 
 </div>
 </div>

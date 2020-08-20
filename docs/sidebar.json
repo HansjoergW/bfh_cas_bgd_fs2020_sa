@@ -1,8 +1,8 @@
 {
   "bfh_cas_bgd_fs2020_sa": {
     "Overview": "/",
-    "Parquet": "/01_Parquet_Basics",
-    "core": "/core",
-    "Download Data From SEC": "/01_Download_SEC_Data"
+    "core": "/00_core",
+    "00_01_Parquet_Basics": "/01_Parquet_Basics",
+    "01_01_Download_SEC_Data": "/01_Download_SEC_Data"
   }
 }

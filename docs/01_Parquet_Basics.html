@@ -1,6 +1,6 @@
 ---
 
-title: Parquet
+title: 00_01_Parquet_Basics
 
 keywords: fastai
 sidebar: home_sidebar
@@ -102,8 +102,7 @@ sidebar: home_sidebar
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Init-Spark">Init Spark<a class="anchor-link" href="#Init-Spark"> </a></h2><blockquote><p>This code initialises the SparkSession and therefore the SparkContext. Pressing the link "Spark UI" opens the Spark UI for this session.</p>
-</blockquote>
+<h2 id="Init-Spark">Init Spark<a class="anchor-link" href="#Init-Spark"> </a></h2><p>This code initialises the SparkSession and therefore the SparkContext. Pressing the link "Spark UI" opens the Spark UI for this session.</p>
 
 </div>
 </div>
@@ -164,17 +163,15 @@ sidebar: home_sidebar
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Datafiles">Datafiles<a class="anchor-link" href="#Datafiles"> </a></h2><blockquote><p>The directory contains two zipfiles (2019q3.zip, 2019q4.zip). Each of them contains 4 csv files. The columns and the relation between these files are described in the readme.htm.
+<h2 id="Datafiles">Datafiles<a class="anchor-link" href="#Datafiles"> </a></h2><p>The directory contains two zipfiles (2019q3.zip, 2019q4.zip). Each of them contains 4 csv files. The columns and the relation between these files are described in the readme.htm.<br>
 Each zip file contains all quarterly and yearly reports that were filled during the quarter denoted by the filename.</p>
-</blockquote>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Unpacking">Unpacking<a class="anchor-link" href="#Unpacking"> </a></h3><blockquote><p>In a first step, the content of the files are unzipped and placed in separated folders</p>
-</blockquote>
+<h3 id="Unpacking">Unpacking<a class="anchor-link" href="#Unpacking"> </a></h3><p>In a first step, the content of the files are unzipped and placed in separated folders</p>
 
 </div>
 </div>
@@ -202,8 +199,7 @@ Each zip file contains all quarterly and yearly reports that were filled during 
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>the sizes of the directories</p>
-</blockquote>
+<p>the sizes of the directories</p>
 
 </div>
 </div>
@@ -243,11 +239,11 @@ Temp folder:  748.04MB
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Using-Parquet">Using Parquet<a class="anchor-link" href="#Using-Parquet"> </a></h2><blockquote><p>let us read a csv file and store it as a parquet file</p>
+<h2 id="Using-Parquet">Using Parquet<a class="anchor-link" href="#Using-Parquet"> </a></h2><p>let us read a csv file and store it as a parquet file</p>
 <ul>
-<li>API doc of the csv reader:<a href="https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameReader.csv&gt;">https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameReader.csv&gt;</a> * API doc of the parquet writer:<a href="https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameWriter.parquet">https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameWriter.parquet</a></li>
+<li>API doc of the csv reader: <a href="https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameReader.csv">https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameReader.csv</a></li>
+<li>API doc of the parquet writer: <a href="https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameWriter.parquet">https://spark.apache.org/docs/2.4.5/api/python/pyspark.sql.html?highlight=parquet#pyspark.sql.DataFrameWriter.parquet</a></li>
 </ul>
-</blockquote>
 
 </div>
 </div>
@@ -306,9 +302,8 @@ Temp folder:  748.04MB
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Reading-a-CSV-file">Reading a CSV file<a class="anchor-link" href="#Reading-a-CSV-file"> </a></h3><blockquote><p>As a first step, the csv file has to be loaded into a spark df. 
+<h3 id="Reading-a-CSV-file">Reading a CSV file<a class="anchor-link" href="#Reading-a-CSV-file"> </a></h3><p>As a first step, the csv file has to be loaded into a spark df. <br>
 The file has a header row and the columns are separated by a TAB (\t).</p>
-</blockquote>
 
 </div>
 </div>
@@ -332,8 +327,7 @@ The file has a header row and the columns are separated by a TAB (\t).</p>
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>When checking the format in the next cell, we see that all columns were read as a string. That is ok for most of the columns but when checking the definitions for the num.txt file in the readme.htm we see, that ddate is a date in the format 'yyyymmdd', qtrs and coreg are 'int' and value is a float.</p>
-</blockquote>
+<p>When checking the format in the next cell, we see that all columns were read as a string. That is ok for most of the columns but when checking the definitions for the num.txt file in the readme.htm we see, that ddate is a date in the format 'yyyymmdd', qtrs and coreg are 'int' and value is a float.</p>
 
 </div>
 </div>
@@ -423,8 +417,7 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>Acutally, spark can try to infer the types of the columns from the data itself, so lets try that by using the "inferSchema" option</p>
-</blockquote>
+<p>Acutally, spark can try to infer the types of the columns from the data itself, so lets try that by using the "inferSchema" option</p>
 
 </div>
 </div>
@@ -448,9 +441,8 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>As we can see in the next cell, we were only partially sucessfull. The reader was able to detect that qtrs is an integer and that value is a double. But it failed to recognize that ddate is actually a date and that coreg should be an int. That was to be expected:ddate looks like an int and the coreg field is only used in special situations, so there is a good change that its content is None for all entries in the file. 
+<p>As we can see in the next cell, we were only partially sucessfull. The reader was able to detect that qtrs is an integer and that value is a double. But it failed to recognize that ddate is actually a date and that coreg should be an int. That was to be expected: ddate looks like an int and the coreg field is only used in special situations, so there is a good change that its content is None for all entries in the file. <br>
 It looks as if we have to define the schema by hand</p>
-</blockquote>
 
 </div>
 </div>
@@ -500,10 +492,9 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>All necessary classes to define a schema are located inside the package pyspark.sql.types and for our example we need the following import
-from pyspark.sql.types import StructType, StructField, StringType, DateType, DoubleType, IntegerType</p>
+<p>All necessary classes to define a schema are located inside the package pyspark.sql.types and for our example we need the following import<br>
+<code>from pyspark.sql.types import StructType, StructField, StringType, DateType, DoubleType, IntegerType</code></p>
 <p>An important point is that the dateFormat has to be defined as parameter when calling spark.read.csv()</p>
-</blockquote>
 
 </div>
 </div>
@@ -580,8 +571,7 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="simple-write-as-Parquet">simple write as Parquet<a class="anchor-link" href="#simple-write-as-Parquet"> </a></h3><blockquote><p>As first version the dataframe is stored directly in parquet format without additional options</p>
-</blockquote>
+<h3 id="Simple-write-as-Parquet">Simple write as Parquet<a class="anchor-link" href="#Simple-write-as-Parquet"> </a></h3><p>As first version the dataframe is stored directly in parquet format without additional options</p>
 
 </div>
 </div>
@@ -665,25 +655,22 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>Parquet was able to compress the data down to about 10% of the orginal size. It splitted the data up in 8 different data files. So every file is containing approximatly 300'000 data rows and has a size of about 3MB</p>
-</blockquote>
+<p>Parquet was able to compress the data down to about 10% of the orginal size. It splitted the data up in 8 different data files. So every file is containing approximatly 300'000 data rows and has a size of about 3MB</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="writing-using-partitions">writing using partitions<a class="anchor-link" href="#writing-using-partitions"> </a></h3><blockquote><p>Parquet can also store the data in different partitions wich will create a new directory for every partition.</p>
-</blockquote>
+<h3 id="Writing-using-partitions">Writing using partitions<a class="anchor-link" href="#Writing-using-partitions"> </a></h3><p>Parquet can also store the data in different partitions wich will create a new directory for every partition.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>As a first approach, we could try to create a partition for every report that means for every distinct "adsh" value. However, since we have about 6300 different reports in the used csv file that would result in data files less than 5kb each. Such small files are very inefficient for parquet, so we do soemthing else.</p>
-<p>Since we read the "ddate" column as a proper date-format we can create partitions based on the year and month. In order to do that we need to add two columns for year and month to the dataframe.</p>
-</blockquote>
+<p>As a first approach, we could try to create a partition for every report that means for every distinct "adsh" value. However, since we have about 6300 different reports in the used csv file that would result in data files less than 5kb each. Such small files are very inefficient for parquet, so we do soemthing else.<br>
+Since we read the "ddate" column as a proper date-format we can create partitions based on the year and month. In order to do that we need to add two columns for year and month to the dataframe.</p>
 
 </div>
 </div>
@@ -725,9 +712,8 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<blockquote><p>Looking at the result may be a little surprising. There are folders for years starting 1978 up to 2028. The 'ddate' column is defined as "The end date for the data value, rounded to the nearest month end". A lot of values that appear in a report may not be from reported period. For instance, often results from the last couple of years are also included in a yearly report. Or expected returns for the following couple of years appear in the report.</p>
-<p>The total size of on disk has also increased significantly. It is still small compared to the originial CSV file, but around 25% to 30% bigger compared to the size that was needed when the data were stored without defining partitions.</p>
-</blockquote>
+<p>Looking at the result may be a little surprising. There are folders for years starting 1978 up to 2028. The 'ddate' column is defined as "The end date for the data value, rounded to the nearest month end". A lot of values that appear in a report may not be from reported period. For instance, often results from the last couple of years are also included in a yearly report. Or expected returns for the following couple of years appear in the report.<br>
+The total size of on disk has also increased significantly. It is still small compared to the originial CSV file, but around 25% to 30% bigger compared to the size that was needed when the data were stored without defining partitions.</p>
 
 </div>
 </div>
@@ -817,8 +803,7 @@ root
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="reading-parquet">reading parquet<a class="anchor-link" href="#reading-parquet"> </a></h3><blockquote><p>reading parquet is even simpler as reading a cvs since parquet contains metainformation about the file structure</p>
-</blockquote>
+<h3 id="Reading-parquet">Reading parquet<a class="anchor-link" href="#Reading-parquet"> </a></h3><p>reading parquet is even simpler as reading a cvs since parquet contains metainformation about the file structure</p>
 
 </div>
 </div>
