@@ -72,6 +72,12 @@ sidebar: home_sidebar
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># basic definitions</span>
 <span class="n">zip_folder</span> <span class="o">=</span> <span class="s2">&quot;./data/&quot;</span> 
 <span class="n">zip_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">)</span>
+
+<span class="n">extract_temp_folder</span> <span class="o">=</span> <span class="s2">&quot;./tmp/extract/&quot;</span>
+<span class="n">Path</span><span class="p">(</span><span class="n">extract_temp_folder</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># create directory if necessary</span>
+
+<span class="n">target_folder</span> <span class="o">=</span> <span class="s2">&quot;./tmp/joined/&quot;</span>
+<span class="n">Path</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># create directory if necessary</span>
 </pre></div>
 
     </div>
@@ -164,44 +170,6 @@ sidebar: home_sidebar
 </div>
     {% endraw %}
 
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># convert the list into a Spark dataframe</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StringType</span>
-
-<span class="n">zip_files_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">zip_files</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())</span>
-<span class="n">zip_files_df</span> <span class="o">=</span> <span class="n">zip_files_df</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span><span class="s2">&quot;url&quot;</span><span class="p">)</span>
-<span class="n">zip_files_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>root
- |-- url: string (nullable = true)
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Read-file-inside-zip-and-convert-it-to-a-spark-dataframe">Read file inside zip and convert it to a spark dataframe<a class="anchor-link" href="#Read-file-inside-zip-and-convert-it-to-a-spark-dataframe"> </a></h2>
@@ -271,7 +239,7 @@ Note, the num.txt has to be extracted into the folder "tmp/2019q3/"</p>
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>2325267
-duration:  0.8069617748260498
+duration:  1.0419988632202148
 </pre>
 </div>
 </div>
@@ -315,7 +283,7 @@ duration:  0.8069617748260498
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The result is pretty reasonable. It took less than a second to load and parse the file into a spark dataframe. (we have to keep in mind, that the disk very likely caches this file after the first load)</p>
+<p>The result is pretty reasonable. It took less than a second to load and parse the file into a spark dataframe. (we have to keep in mind, that the disk very likely caches this file after the first load, so it should be called twice)</p>
 
 </div>
 </div>
@@ -340,14 +308,49 @@ duration:  0.8069617748260498
 
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test_zip</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;data2019q3&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="n">test_zip</span> <span class="o">=</span> <span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">data_file</span> <span class="o">=</span> <span class="n">NUM_TXT</span>
 
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">test_zip</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">container_zip</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">container_zip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">NUM_TXT</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;./tmp/tempfile.xt&quot;</span><span class="p">,</span> <span class="s2">&quot;wb+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">container_zip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">tempfile</span> <span class="o">=</span> <span class="n">extract_temp_folder</span> <span class="o">+</span> <span class="n">test_zip</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">data_file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tempfile</span><span class="p">,</span> <span class="s2">&quot;wb+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">fp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -368,7 +371,7 @@ duration:  0.8069617748260498
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>2325267
-duration:  2.333956718444824
+duration:  2.1444883346557617
 </pre>
 </div>
 </div>
@@ -498,7 +501,7 @@ This code is not suitable for CSV files containing real text columns, because no
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>adsh : 0000034563-19-000064
-duration:  8.604996681213379
+duration:  10.322304248809814
 </pre>
 </div>
 </div>
@@ -598,7 +601,7 @@ duration:  132.30002903938293
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>2325267
-duration:  13.77500033378601
+duration:  14.239033222198486
 </pre>
 </div>
 </div>
@@ -659,7 +662,7 @@ duration:  13.77500033378601
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion"> </a></h3><p>Since this is mainly a ontime operation, i will use the "Using spark.read.csv with RDD parallelize" as a first approach. If that shouldn't work out well, i would go for the extract and save to disk approach.</p>
+<h3 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion"> </a></h3><p>Since exracting the file and reading it directly with the read.csv method performs the best, we will use this approach. We have to pay attention, that we create unique temporary files and that the clean them once the job is finished. So we will extract them in its own folder "extract_temp_folder".</p>
 
 </div>
 </div>
@@ -670,6 +673,13 @@ duration:  13.77500033378601
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To compare the overall performance, we implement also the method who reads the data directly from the zip into memory and uses RDDs to create the DF</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -677,12 +687,53 @@ duration:  13.77500033378601
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">read_csv_in_zip_into_df</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       extracting the data directly from zipfile into the memory. we need to call decode with utf-8. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">test_zip</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">container_zip</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">container_zip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">NUM_TXT</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">container_zip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The following method will be the method we are going to use in the final version</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       Extracts the data from zipfile and stores it on disk. </span>
+<span class="sd">       Uses spark.csv.read to read the data into the df</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">test_zip</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">container_zip</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">container_zip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># create a unique tempfile to extract the data</span>
+            <span class="n">tempfile</span> <span class="o">=</span> <span class="n">extract_temp_folder</span> <span class="o">+</span> <span class="n">zip_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">data_file</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tempfile</span><span class="p">,</span> <span class="s2">&quot;wb+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
     </div>
@@ -698,6 +749,13 @@ duration:  13.77500033378601
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will use the spark dataframe's join method to join the data and we will compare the performance between to variants descriped above</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -705,48 +763,24 @@ duration:  13.77500033378601
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this takes some time till loaded</span>
-<span class="c1"># lap1:  2.0500004291534424</span>
-<span class="c1"># lap2:  66.70102596282959</span>
-<span class="c1"># lap2:  133.26235961914062 -&gt; loading the data and creating a tuple is only about 8 seconds... so about 2 minutes are needed to create the df from the tuple</span>
-<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">df_sub</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SUB_TXT</span><span class="p">)</span>
-<span class="n">lap1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">lap1_time</span> <span class="o">=</span> <span class="n">lap1</span><span class="o">-</span><span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lap1: &quot;</span><span class="p">,</span> <span class="n">lap1_time</span><span class="p">)</span>
-<span class="n">df_pre</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PRE_TXT</span><span class="p">)</span>
-<span class="n">lap2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">lap2_time</span> <span class="o">=</span> <span class="n">lap2</span><span class="o">-</span><span class="n">lap1</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lap2: &quot;</span><span class="p">,</span> <span class="n">lap2_time</span><span class="p">)</span>
-<span class="n">df_num</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">NUM_TXT</span><span class="p">)</span>
-<span class="n">lap3</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">lap3_time</span> <span class="o">=</span> <span class="n">lap3</span><span class="o">-</span><span class="n">lap2</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lap2: &quot;</span><span class="p">,</span> <span class="n">lap3_time</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### Notes about joining</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>lap1:  2.0500004291534424
-lap2:  66.70102596282959
-lap2:  133.26235961914062
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When defining joins, we have to pay attention to define them correctly if the join columns have the same name in both dataframes. Otherwise it can happen, that the join columns appear twice in the resulting dataframe.<br>
+Details can be found here: <a href="https://kb.databricks.com/data/join-two-dataframes-duplicated-columns.html">https://kb.databricks.com/data/join-two-dataframes-duplicated-columns.html</a></p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -755,7 +789,7 @@ lap2:  133.26235961914062
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this join produces a df with two duplicated columns named adsh</span>
-<span class="c1"># that should be prevented: https://kb.databricks.com/data/join-two-dataframes-duplicated-columns.html</span>
+<span class="c1"># that should be prevented: </span>
 <span class="n">df_join1</span> <span class="o">=</span> <span class="n">df_num</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_sub</span><span class="p">,</span> <span class="n">df_num</span><span class="o">.</span><span class="n">adsh</span> <span class="o">==</span> <span class="n">df_sub</span><span class="o">.</span><span class="n">adsh</span><span class="p">)</span>
 <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_join1</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;adsh&quot;</span><span class="p">]</span> <span class="c1"># shows that the column adsh is twice in the dataframe</span>
 </pre></div>
@@ -818,6 +852,40 @@ lap2:  133.26235961914062
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="V1:-Reading-directly-from-Zip-into-RDD-and-create-Dataframe-from-RDD">V1: Reading directly from Zip into RDD and create Dataframe from RDD<a class="anchor-link" href="#V1:-Reading-directly-from-Zip-into-RDD-and-create-Dataframe-from-RDD"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this just creates and prepares the graph, nothing happens yet</span>
+<span class="n">df_sub</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SUB_TXT</span><span class="p">)</span>
+<span class="n">df_pre</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PRE_TXT</span><span class="p">)</span>
+<span class="n">df_num</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">NUM_TXT</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The following cells defines the join. <br>
+df_num and df_sub have to be joined based on attribut "adsh". We can use an inner join for that since we know that every entry in num has a reference in sub. The result of this join is then joined with pre. We use a left outer join for that, since not every num must have an entry in pre. Since it is possible that there is more than one entry in pre for a pre, the total number of records will be likely larger than the rows in num alone</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -826,7 +894,67 @@ lap2:  133.26235961914062
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># joining the dataframes together</span>
-<span class="n">df_joined</span> <span class="o">=</span> <span class="n">df_num</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_sub</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_pre</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">,</span><span class="s2">&quot;tag&quot;</span><span class="p">],</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">df_joined</span> <span class="o">=</span> <span class="n">df_num</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_sub</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_pre</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">],</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count: &quot;</span><span class="p">,</span> <span class="n">df_joined</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="c1"># again, calling count to ensure that the df is completely initialized</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>count:  2570409
+duration:  40.54203271865845
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To Execute the whole graph, it took about 40 seconds.<br>
+Checking the Windows TaskManager, we see that almost 100% CPU was used on all cores to execute the task.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/bfh_cas_bgd_fs2020_sa/./images/TaskManager_RDD.png" alt="TaskManager_RDD.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="V2:-Extract-the-file-into-a-temporary-file-and-use-spark.read.csv-directly-with-the-file">V2: Extract the file into a temporary file and use spark.read.csv directly with the file<a class="anchor-link" href="#V2:-Extract-the-file-into-a-temporary-file-and-use-spark.read.csv-directly-with-the-file"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this just creates and prepares the graph, nothing happens yet</span>
+<span class="n">df_sub</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SUB_TXT</span><span class="p">)</span>
+<span class="n">df_pre</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PRE_TXT</span><span class="p">)</span>
+<span class="n">df_num</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">NUM_TXT</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -843,7 +971,268 @@ lap2:  133.26235961914062
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_joined</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="c1"># this will start the whole DAG and executes the join</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># joining is the same as above</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">df_joined</span> <span class="o">=</span> <span class="n">df_num</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_sub</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_pre</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">],</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count: &quot;</span><span class="p">,</span> <span class="n">df_joined</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="c1"># again, calling count to ensure that the df is completely initialized</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>count:  2570409
+duration:  6.892997980117798
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The result speaks for itself. Only 7 seconds were used to load the data and join it. Also here, during these 7 seconds, almost 100% of the availabe CPU power was used on all cores.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/bfh_cas_bgd_fs2020_sa/./images/TaskManager_Extract.png" alt="TaskManager_Extract.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Glueing-it-together">Glueing it together<a class="anchor-link" href="#Glueing-it-together"> </a></h2>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">join_files</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Joins the content of the 3 csv files that are contained in the zip file and </span>
+<span class="sd">        create on csv file containing all relevant columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">target_path</span> <span class="o">=</span> <span class="n">target_folder</span> <span class="o">+</span> <span class="n">Path</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    
+    <span class="n">df_sub</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">SUB_TXT</span><span class="p">)</span>
+    <span class="n">df_pre</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">PRE_TXT</span><span class="p">)</span>
+    <span class="n">df_num</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_extract</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">NUM_TXT</span><span class="p">)</span>
+    
+    <span class="n">df_joined</span> <span class="o">=</span> <span class="n">df_num</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_sub</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_pre</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">],</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    
+    <span class="n">df_joined</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">target_path</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">join_files</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target_folder</span><span class="p">))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>./tmp/joined/data2019q3
+duration:  65.65727496147156
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It takes about 60 seconds, which is a little surprising, since a count on the joined df only took about 7 seconds. So the question is if this is just the writing or were there other optimisation for count possible and which explain the difference between the "V1: extract to file" and "V2: Reading directly from Zip into RDD".</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Adapt the code and use the "rdd" version of reading the csv</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">join_files_rdd</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Joins the content of the 3 csv files that are contained in the zip file and </span>
+<span class="sd">        create on csv file containing all relevant columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">target_path</span> <span class="o">=</span> <span class="n">target_folder</span> <span class="o">+</span> <span class="n">Path</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    
+    <span class="n">df_sub</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">SUB_TXT</span><span class="p">)</span>
+    <span class="n">df_pre</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">PRE_TXT</span><span class="p">)</span>
+    <span class="n">df_num</span> <span class="o">=</span> <span class="n">read_csv_in_zip_into_df_direct</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">NUM_TXT</span><span class="p">)</span>
+    
+    <span class="n">df_joined</span> <span class="o">=</span> <span class="n">df_num</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_sub</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_pre</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">],</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    
+    <span class="n">df_joined</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">target_path</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">join_files_rdd</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>./tmp/joined/data2019q3
+duration:  96.1389946937561
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This proves that the RDD version is slower and we will stick with the extract version</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## Running on all 46 zipfiles</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As a final test and to get a baseline, we will run the "joining" an all 46 zip files.<br>
+Since the processing of every single zip file already uses all cores very much in parallel, there is no need to try to parallize the processing of multpiple zip files at the same time. So this will be just one loop which processes the files sequentially.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">all_zip_file_folder</span> <span class="o">=</span> <span class="s2">&quot;D:/data/sec_zips/&quot;</span>
+<span class="n">all_zip_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">all_zip_file_folder</span><span class="p">)</span>
+<span class="n">zip_files</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">all_zip_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.zip&quot;</span><span class="p">)]</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;d:/data/zip_joined/&quot;</span>
+<span class="n">Path</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># create directory if necessary</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Path</span><span class="p">(</span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">name</span>
 </pre></div>
 
     </div>
@@ -858,7 +1247,7 @@ lap2:  133.26235961914062
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>2570409</pre>
+<pre>&#39;2009q1.zip&#39;</pre>
 </div>
 
 </div>
@@ -869,6 +1258,147 @@ lap2:  133.26235961914062
 </div>
     {% endraw %}
 
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zip_files</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">zip_files</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span> 
+        <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">join_files</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;failed: &quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>46
+D:\data\sec_zips\2009q1.zip
+d:/data/zip_joined/2009q1
+D:\data\sec_zips\2009q2.zip
+d:/data/zip_joined/2009q2
+D:\data\sec_zips\2009q3.zip
+d:/data/zip_joined/2009q3
+D:\data\sec_zips\2009q4.zip
+d:/data/zip_joined/2009q4
+D:\data\sec_zips\2010q1.zip
+d:/data/zip_joined/2010q1
+D:\data\sec_zips\2010q2.zip
+d:/data/zip_joined/2010q2
+D:\data\sec_zips\2010q3.zip
+d:/data/zip_joined/2010q3
+D:\data\sec_zips\2010q4.zip
+d:/data/zip_joined/2010q4
+D:\data\sec_zips\2011q1.zip
+d:/data/zip_joined/2011q1
+D:\data\sec_zips\2011q2.zip
+d:/data/zip_joined/2011q2
+D:\data\sec_zips\2011q3.zip
+d:/data/zip_joined/2011q3
+D:\data\sec_zips\2011q4.zip
+d:/data/zip_joined/2011q4
+D:\data\sec_zips\2012q1.zip
+d:/data/zip_joined/2012q1
+D:\data\sec_zips\2012q2.zip
+d:/data/zip_joined/2012q2
+D:\data\sec_zips\2012q3.zip
+d:/data/zip_joined/2012q3
+D:\data\sec_zips\2012q4.zip
+d:/data/zip_joined/2012q4
+D:\data\sec_zips\2013q1.zip
+d:/data/zip_joined/2013q1
+D:\data\sec_zips\2013q2.zip
+d:/data/zip_joined/2013q2
+D:\data\sec_zips\2013q3.zip
+d:/data/zip_joined/2013q3
+D:\data\sec_zips\2013q4.zip
+d:/data/zip_joined/2013q4
+D:\data\sec_zips\2014q1.zip
+d:/data/zip_joined/2014q1
+D:\data\sec_zips\2014q2.zip
+d:/data/zip_joined/2014q2
+D:\data\sec_zips\2014q3.zip
+d:/data/zip_joined/2014q3
+D:\data\sec_zips\2014q4.zip
+d:/data/zip_joined/2014q4
+D:\data\sec_zips\2015q1.zip
+d:/data/zip_joined/2015q1
+D:\data\sec_zips\2015q2.zip
+d:/data/zip_joined/2015q2
+D:\data\sec_zips\2015q3.zip
+d:/data/zip_joined/2015q3
+D:\data\sec_zips\2015q4.zip
+d:/data/zip_joined/2015q4
+D:\data\sec_zips\2016q1.zip
+d:/data/zip_joined/2016q1
+D:\data\sec_zips\2016q2.zip
+d:/data/zip_joined/2016q2
+D:\data\sec_zips\2016q3.zip
+d:/data/zip_joined/2016q3
+D:\data\sec_zips\2016q4.zip
+d:/data/zip_joined/2016q4
+D:\data\sec_zips\2017q1.zip
+d:/data/zip_joined/2017q1
+D:\data\sec_zips\2017q2.zip
+d:/data/zip_joined/2017q2
+D:\data\sec_zips\2017q3.zip
+d:/data/zip_joined/2017q3
+D:\data\sec_zips\2017q4.zip
+d:/data/zip_joined/2017q4
+D:\data\sec_zips\2018q1.zip
+d:/data/zip_joined/2018q1
+D:\data\sec_zips\2018q2.zip
+d:/data/zip_joined/2018q2
+D:\data\sec_zips\2018q3.zip
+d:/data/zip_joined/2018q3
+D:\data\sec_zips\2018q4.zip
+d:/data/zip_joined/2018q4
+D:\data\sec_zips\2019q1.zip
+d:/data/zip_joined/2019q1
+D:\data\sec_zips\2019q2.zip
+d:/data/zip_joined/2019q2
+D:\data\sec_zips\2019q3.zip
+d:/data/zip_joined/2019q3
+D:\data\sec_zips\2019q4.zip
+d:/data/zip_joined/2019q4
+D:\data\sec_zips\2020q1.zip
+d:/data/zip_joined/2020q1
+D:\data\sec_zips\2020q2.zip
+d:/data/zip_joined/2020q2
+duration:  2598.309921503067
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It took about 2600 seconds (about 43 min), all files were processed and there was no exception. All content in the joined folder has a total size of about 5.5GB.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -893,26 +1423,11 @@ lap2:  133.26235961914062
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">zip_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># clear extract folder</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">extract_temp_folder</span><span class="p">)</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&#39;data\\2019q3.zip&#39;</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 
