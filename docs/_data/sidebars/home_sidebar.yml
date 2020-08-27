@@ -21,6 +21,9 @@ entries:
     - output: web,pdf
       title: 01_02_Join_SEC_Data
       url: /02_Join_SEC_Data
+    - output: web,pdf
+      title: 01_03_Merge_To_Single_Parquet
+      url: /03_Merge_To_Single_Parquet
     output: web
     title: bfh_cas_bgd_fs2020_sa
   output: web
