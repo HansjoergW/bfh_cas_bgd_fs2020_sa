@@ -5,6 +5,8 @@
     "00_01_Parquet_Basics": "/01_Parquet_Basics",
     "01_01_Download_SEC_Data": "/01_Download_SEC_Data",
     "01_02_Join_SEC_Data": "/02_Join_SEC_Data",
-    "01_03_Merge_To_Single_Parquet": "/03_Merge_To_Single_Parquet"
+    "01_03_Merge_To_Single_Parquet": "/03_Merge_To_Single_Parquet",
+    "Title": "/04_Filter_And_Partition",
+    "02_01_Analysis_Whole_Data": "/01_Analysis_Whole_Data"
   }
 }
