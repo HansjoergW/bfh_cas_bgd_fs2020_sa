@@ -48,6 +48,8 @@ sidebar: home_sidebar
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Set</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
 <span class="kn">import</span> <span class="nn">shutil</span>          <span class="c1"># provides high level file operations</span>
 <span class="kn">import</span> <span class="nn">time</span>            <span class="c1"># used to measure execution time</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -223,7 +225,7 @@ sidebar: home_sidebar
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>duration:  0.24999737739562988
+<pre>duration:  5.90805196762085
 </pre>
 </div>
 </div>
@@ -354,7 +356,7 @@ duration:  0.14003944396972656
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Entries in Test:  109_392_813
-duration:  21.720181465148926
+duration:  654.1990530490875
 </pre>
 </div>
 </div>
@@ -1156,7 +1158,7 @@ afs
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;with filer state   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_all</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;stmt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt is null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;with filer state   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_all</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;stmt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt is not null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
 <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 </pre></div>
@@ -1171,8 +1173,8 @@ afs
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>with filer state   :  42_118_323
-duration:  13.060863494873047
+<pre>without filer state   :  67_274_490
+duration:  5.7040205001831055
 </pre>
 </div>
 </div>
@@ -1185,14 +1187,14 @@ duration:  13.060863494873047
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It looks as if only about 40 percent of the rows in the data belong to a "primary financial statement".That makes sense, since there are is a lot of other information provided in these reports.</p>
+<p>It looks as if about two third of the rows in the data belong to a "primary financial statement". That makes sense, since there are is a lot of other information provided in these reports as well.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Lets see how these entries are distributed over the different "primary financial reports".</p>
+<p>Lets see how these entries are distributed over the different "primary financial reports". This time, we use the cube function instead of pandas crosstab.</p>
 
 </div>
 </div>
@@ -1205,7 +1207,7 @@ duration:  13.060863494873047
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">p_df_prim_financial_reports</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;stmt&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span> <span class="c1">#  convert to pandas in order to visualize the data</span>
+<span class="n">p_df_prim_fin_rep_count</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">cube</span><span class="p">(</span><span class="s1">&#39;stmt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
 <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 </pre></div>
@@ -1219,24 +1221,8 @@ duration:  13.060863494873047
 
 <div class="output_area">
 
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>Exception ignored in: &lt;function JavaObject.__init__.&lt;locals&gt;.&lt;lambda&gt; at 0x000001BAAA64DB88&gt;
-Traceback (most recent call last):
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 1293, in &lt;lambda&gt;
-    _garbage_collect_object and _garbage_collect_object(cc, id))
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 625, in _garbage_collect_object
-    gateway_client.garbage_collect_object(target_id)
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 920, in garbage_collect_object
-    &#34;\ne\n&#34;)
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 983, in send_command
-    connection = self._get_connection()
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 931, in _get_connection
-    connection = self._create_connection()
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 937, in _create_connection
-    connection.start()
-  File &#34;C:\ieu\Anaconda3\envs\spark\lib\site-packages\py4j\java_gateway.py&#34;, line 1067, in start
-    self.socket.connect((self.address, self.port))
-KeyboardInterrupt: 
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>duration:  20.70000171661377
 </pre>
 </div>
 </div>
@@ -1254,11 +1240,188 @@ KeyboardInterrupt:
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ct</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">p_df_prim_financial_reports</span><span class="p">[</span><span class="s1">&#39;stmt&#39;</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">p_df_prim_fin_rep_count</span><span class="p">)</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>   stmt      count
+0    IS   19510905
+1  None  109392813
+2    UN     516429
+3    CF   20484223
+4    CP     320445
+5    BS   19201652
+6    CI    2633410
+7    EQ    4607426
+8  None   42118323
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Tags">Tags<a class="anchor-link" href="#Tags"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Another question that could arise is how many different Tags are used, especially in the primary financial statements.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_1st</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;stmt&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;version&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt is not null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_1st</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>stmt</th>
+      <th>tag</th>
+      <th>version</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CF</td>
+      <td>IncomeLossFromEquityMethodInvestments</td>
+      <td>us-gaap/2009</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>CF</td>
+      <td>OriginationOfNotesReceivableFromRelatedParties</td>
+      <td>us-gaap/2009</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>CF</td>
+      <td>PaymentsForEnvironmentalLiabilities</td>
+      <td>us-gaap/2009</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>IS</td>
+      <td>PensionContributions</td>
+      <td>us-gaap/2009</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>CF</td>
+      <td>ProceedsFromIssuanceOfMediumTermNotes</td>
+      <td>us-gaap/2008</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2230293</th>
+      <td>BS</td>
+      <td>DueFromManagers</td>
+      <td>0001193125-10-044002</td>
+    </tr>
+    <tr>
+      <th>2230294</th>
+      <td>BS</td>
+      <td>EquitySecuritiesCost</td>
+      <td>0000950123-10-018149</td>
+    </tr>
+    <tr>
+      <th>2230295</th>
+      <td>CF</td>
+      <td>FundSupportPurchasesOfStructuredInvestmentVehi...</td>
+      <td>0000704051-10-000017</td>
+    </tr>
+    <tr>
+      <th>2230296</th>
+      <td>EQ</td>
+      <td>CallOptionsValue</td>
+      <td>0001047469-10-002469</td>
+    </tr>
+    <tr>
+      <th>2230297</th>
+      <td>IS</td>
+      <td>OperatingExpensesOtherThanLitigationChargeCredit</td>
+      <td>0000950123-10-005311</td>
+    </tr>
+  </tbody>
+</table>
+<p>2230298 rows × 3 columns</p>
+</div>
+</div>
+
+</div>
+
 </div>
 </div>
 
