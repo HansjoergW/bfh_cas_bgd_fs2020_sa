@@ -1,6 +1,6 @@
 ---
 
-title: Title
+title: 01_05_Filter_And_Partition
 
 keywords: fastai
 sidebar: home_sidebar
@@ -23,6 +23,882 @@ sidebar: home_sidebar
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this notebook, we filter the lines in which we are interested for the following steps.<br> These are</p>
+<ul>
+<li>only lines from a 10K and 10Q reports (field form is "10-K" or "10-Q")</li>
+<li>only lines which belong to a "primary financal statement" (field stmt is not empty)</li>
+<li>only lines with tags that are not custom tags (version beginning with '00')</li>
+<li>only companies whose shares are, or have been traded at NASDAQ or NYSE</li>
+</ul>
+<p><br>
+The result will be stored as a new Parquet-file. We will use our own partition definition in order to make sure, that all lines from one company are inside the same partition.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># imports</span>
+<span class="kn">from</span> <span class="nn">bfh_cas_bgd_fs2020_sa.core</span> <span class="kn">import</span> <span class="o">*</span> <span class="c1"># initialze spark</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">col</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">shutil</span>          <span class="c1"># provides high level file operations</span>
+<span class="kn">import</span> <span class="nn">time</span>            <span class="c1"># used to measure execution time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># folder with our test-dataset which contains only data from two zip files</span>
+<span class="n">tst_parquet_folder</span> <span class="o">=</span> <span class="s2">&quot;./tmp/parquet/&quot;</span>
+<span class="n">tst_filtered_folder</span> <span class="o">=</span> <span class="s2">&quot;./tmp/filtered/&quot;</span>
+
+<span class="c1"># folder with the whole dataset as a single parquet</span>
+<span class="n">all_parquet_folder</span> <span class="o">=</span> <span class="s2">&quot;D:/data/parquet/&quot;</span>
+<span class="n">all_filtered_folder</span> <span class="o">=</span> <span class="s2">&quot;D:/data/parq_filtered&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Init-Spark">Init Spark<a class="anchor-link" href="#Init-Spark"> </a></h2>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">spark</span> <span class="o">=</span> <span class="n">get_spark_session</span><span class="p">()</span> <span class="c1"># Session anlegen</span>
+<span class="n">spark</span> <span class="c1"># display the most important information of the session</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+            <div>
+                <p><b>SparkSession - in-memory</b></p>
+                
+        <div>
+            <p><b>SparkContext</b></p>
+
+            <p><a href="http://192.168.0.163:4040">Spark UI</a></p>
+
+            <dl>
+              <dt>Version</dt>
+                <dd><code>v2.4.5</code></dd>
+              <dt>Master</dt>
+                <dd><code>local[*]</code></dd>
+              <dt>AppName</dt>
+                <dd><code>default</code></dd>
+            </dl>
+        </div>
+        
+            </div>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Load-the-dataset">Load the dataset<a class="anchor-link" href="#Load-the-dataset"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Loading the data doesn't really do anything. It just prepares the df. But we well use the cache() method to keep the data in memory, once it is loaded for the first time.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Load-the-test-data">Load the test data<a class="anchor-link" href="#Load-the-test-data"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">df_tst</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">tst_parquet_folder</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>duration:  0.17499494552612305
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Load-the-whole-dataset">Load the whole dataset<a class="anchor-link" href="#Load-the-whole-dataset"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">df_all</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">all_parquet_folder</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>duration:  2.0872995853424072
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Print-all-the-contained-column-names">Print all the contained column names<a class="anchor-link" href="#Print-all-the-contained-column-names"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_all</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span> <span class="c1"># print the name of the columns for convenience</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>cik, adsh, tag, version, coreg, ddate, qtrs, uom, value, footnote, name, sic, countryba, stprba, cityba, zipba, bas1, bas2, baph, countryma, stprma, cityma, zipma, mas1, mas2, countryinc, stprinc, ein, former, changed, afs, wksi, fye, form, period, fy, fp, filed, accepted, prevrpt, detail, instance, nciks, aciks, report, line, stmt, inpth, rfile, plabel, negating, ticker, name_cik_tic, exchange, </pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-data-into-memory">Loading data into memory<a class="anchor-link" href="#Loading-data-into-memory"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We just make a count on the test and the all dataset. This ensure that the data will be loaded into the memory and is cached afterwards.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Entries in Test: &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_tst</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span> <span class="c1"># loading test dataset into memory</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Entries in Test:  5_239_639
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Entries in Test: &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_all</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span> <span class="c1"># loading all dataset into memory</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Entries in Test:  109_392_813
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Filter-lines-for-&quot;10K&quot;-and-&quot;10Q&quot;-and-&quot;Primary-Financial-Statement&quot;">Filter lines for "10K" and "10Q" and "Primary Financial Statement"<a class="anchor-link" href="#Filter-lines-for-&quot;10K&quot;-and-&quot;10Q&quot;-and-&quot;Primary-Financial-Statement&quot;"> </a></h2>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">filter_string</span> <span class="o">=</span> <span class="s2">&quot;stmt is not null and version NOT LIKE &#39;00%&#39; and form in (&#39;10-K&#39;, &#39;10-Q&#39;)&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Test-dataset">Test dataset<a class="anchor-link" href="#Test-dataset"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_tst_filtered</span> <span class="o">=</span> <span class="n">df_tst</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">filter_string</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;after filter   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_tst_filtered</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>after filter   :  2_994_680
+duration:  4.5779969692230225
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Whole-dataset">Whole dataset<a class="anchor-link" href="#Whole-dataset"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_filtered</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">filter_string</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;after filter   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_all_filtered</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>after filter   :  55_696_724
+duration:  24.144516706466675
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Filter-companies-traded-at-NYSE-and-NASDAQ">Filter companies traded at NYSE and NASDAQ<a class="anchor-link" href="#Filter-companies-traded-at-NYSE-and-NASDAQ"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A companies "being traded at" status can change during its life time, so we cannot simply filter by the "exchange" column. Instead we have to create a list with all the companies (CIK number) which have been traded or ar traded at NYSE or NASDAQ.
+<br>
+We add a column "cik_select" which recieves the value 1 which we can use to filter after the join.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-list-with-cik">Create list with cik<a class="anchor-link" href="#Create-list-with-cik"> </a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Test-dataset">Test dataset<a class="anchor-link" href="#Test-dataset"> </a></h4>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_tst_cik_exchange</span> <span class="o">=</span> <span class="n">df_tst_filtered</span><span class="p">[[</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;exchange&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span> \
+    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;exchange in (&#39;NASDAQ&#39;,&#39;NYSE&#39;,&#39;NYSE ARCA&#39;,&#39;NYSE MKT&#39;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span> <span class="s2">&quot;1 as cik_select&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count cik_exchange   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_tst_cik_exchange</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>count cik_exchange   :  2_844
+duration:  0.6120038032531738
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Whole-dataset">Whole dataset<a class="anchor-link" href="#Whole-dataset"> </a></h4>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_cik_exchange</span> <span class="o">=</span> <span class="n">df_all_filtered</span><span class="p">[[</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;exchange&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span> \
+    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;exchange in (&#39;NASDAQ&#39;,&#39;NYSE&#39;,&#39;NYSE ARCA&#39;,&#39;NYSE MKT&#39;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span> <span class="s2">&quot;1 as cik_select&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count cik_exchange   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_all_cik_exchange</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>count cik_exchange   :  4_459
+duration:  42.441001892089844
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Join-the-cik-list-with-the-filtered-dataframe">Join the cik list with the filtered dataframe<a class="anchor-link" href="#Join-the-cik-list-with-the-filtered-dataframe"> </a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, we can left join the filtered dataframe with the cik list and use the column "cik_select" to filter the ones we are interested in.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Test-dataset">Test dataset<a class="anchor-link" href="#Test-dataset"> </a></h4>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_tst_filter_complete</span> <span class="o">=</span> <span class="n">df_tst_filtered</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_tst_cik_exchange</span><span class="p">,</span> <span class="s1">&#39;cik&#39;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;cik_select == 1&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count cik_exchange   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_tst_filter_complete</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>count cik_exchange   :  1_680_108
+duration:  0.8090000152587891
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Whole-dataset">Whole dataset<a class="anchor-link" href="#Whole-dataset"> </a></h4>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_filter_complete</span> <span class="o">=</span> <span class="n">df_all_filtered</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_all_cik_exchange</span><span class="p">,</span> <span class="s1">&#39;cik&#39;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;cik_select == 1&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;count cik_exchange   : &quot;</span><span class="p">,</span> <span class="s2">&quot;{:_}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_all_filter_complete</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>count cik_exchange   :  35_454_045
+duration:  25.643085956573486
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We were able to reduce the 110 million rows to about 35 million rows.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Save-as-a-new-Parquet-file">Save as a new Parquet file<a class="anchor-link" href="#Save-as-a-new-Parquet-file"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When we think about defining the partitions, we have to think about how this will effect performance. There are mainly to reasons to use partitions. The first reason ist to be able to read with serveral cores in parallel, so it makes sense to have at least as many partitons as there are cores in the cluster. The second reason is to reduce the amount of data that has to be read. The Parquet-reader can interpret the where-clause of a query and therefore optimize the reading. For instance, let us assume we have data with a country field and use this is the partition key. If we execute a select "coutry = 'Switzerland'", then the Parquet-reader will know that it only has to read the partition, in which data for Switzerland are stored.
+<br>
+In our case, it makes sense, that all data lines of one company (cik) are stored in the same partition. Moreover, we will use a second level of partitions which are based on the stmt column (the type of the financial statement) since these entries should also belong together.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Test-dataset">Test dataset<a class="anchor-link" href="#Test-dataset"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_tst_partioned</span> <span class="o">=</span> <span class="n">df_tst_filter_complete</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">),</span> <span class="n">col</span><span class="p">(</span><span class="s2">&quot;stmt&quot;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tst_filtered_folder</span><span class="p">,</span>  <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">df_tst_partioned</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">tst_filtered_folder</span><span class="p">)</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>duration:  17.03229856491089
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Whole-dataset">Whole dataset<a class="anchor-link" href="#Whole-dataset"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_partioned</span> <span class="o">=</span> <span class="n">df_all_filter_complete</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">),</span> <span class="n">col</span><span class="p">(</span><span class="s2">&quot;stmt&quot;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">all_filtered_folder</span><span class="p">,</span>  <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">df_all_partioned</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">all_filtered_folder</span><span class="p">)</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;duration: &quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>duration:  238.66271138191223
+</pre>
+</div>
+</div>
+
+</div>
+</div>
 
 </div>
     {% endraw %}

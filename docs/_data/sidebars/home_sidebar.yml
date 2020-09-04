@@ -28,7 +28,7 @@ entries:
       title: 01_04_Analysis_Whole_Data
       url: /04_Analysis_Whole_Data
     - output: web,pdf
-      title: Title
+      title: 01_05_Filter_And_Partition
       url: /05_Filter_And_Partition
     output: web
     title: bfh_cas_bgd_fs2020_sa
