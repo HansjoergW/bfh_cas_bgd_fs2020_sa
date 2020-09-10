@@ -196,7 +196,7 @@ The result will be stored as a new Parquet-file. We will use our own partition d
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>duration:  0.17499494552612305
+<pre>duration:  3.5519726276397705
 </pre>
 </div>
 </div>
@@ -236,7 +236,7 @@ The result will be stored as a new Parquet-file. We will use our own partition d
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>duration:  2.0872995853424072
+<pre>duration:  2.7510311603546143
 </pre>
 </div>
 </div>
@@ -428,7 +428,7 @@ The result will be stored as a new Parquet-file. We will use our own partition d
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>after filter   :  2_994_680
-duration:  4.5779969692230225
+duration:  4.209047317504883
 </pre>
 </div>
 </div>
@@ -486,7 +486,7 @@ duration:  4.5779969692230225
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>after filter   :  55_696_724
-duration:  24.144516706466675
+duration:  16.577272653579712
 </pre>
 </div>
 </div>
@@ -532,7 +532,7 @@ We add a column "cik_select" which recieves the value 1 which we can use to filt
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_tst_cik_exchange</span> <span class="o">=</span> <span class="n">df_tst_filtered</span><span class="p">[[</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;exchange&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span> \
-    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;exchange in (&#39;NASDAQ&#39;,&#39;NYSE&#39;,&#39;NYSE ARCA&#39;,&#39;NYSE MKT&#39;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span> <span class="s2">&quot;1 as cik_select&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;exchange in (&#39;NASDAQ&#39;,&#39;NYSE&#39;,&#39;NYSE ARCA&#39;,&#39;NYSE MKT&#39;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span> <span class="s2">&quot;1 as cik_select&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -566,7 +566,7 @@ We add a column "cik_select" which recieves the value 1 which we can use to filt
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>count cik_exchange   :  2_844
-duration:  0.6120038032531738
+duration:  4.346974611282349
 </pre>
 </div>
 </div>
@@ -591,7 +591,7 @@ duration:  0.6120038032531738
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_cik_exchange</span> <span class="o">=</span> <span class="n">df_all_filtered</span><span class="p">[[</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;exchange&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span> \
-    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;exchange in (&#39;NASDAQ&#39;,&#39;NYSE&#39;,&#39;NYSE ARCA&#39;,&#39;NYSE MKT&#39;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span> <span class="s2">&quot;1 as cik_select&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;exchange in (&#39;NASDAQ&#39;,&#39;NYSE&#39;,&#39;NYSE ARCA&#39;,&#39;NYSE MKT&#39;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span> <span class="s2">&quot;1 as cik_select&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -625,7 +625,7 @@ duration:  0.6120038032531738
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>count cik_exchange   :  4_459
-duration:  42.441001892089844
+duration:  45.67404913902283
 </pre>
 </div>
 </div>
@@ -696,7 +696,7 @@ duration:  42.441001892089844
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>count cik_exchange   :  1_680_108
-duration:  0.8090000152587891
+duration:  3.652958393096924
 </pre>
 </div>
 </div>
@@ -754,7 +754,7 @@ duration:  0.8090000152587891
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>count cik_exchange   :  35_454_045
-duration:  25.643085956573486
+duration:  17.44800305366516
 </pre>
 </div>
 </div>
