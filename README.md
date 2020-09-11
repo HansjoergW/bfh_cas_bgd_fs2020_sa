@@ -19,6 +19,7 @@ __UseCase 01 "BalanceSheet"__
 * 01_04_Analysis_Whole_Data conducts Some basic analysis on the whole dataset
 * 01_05_Filter_And_Partition Filters the data: only use primary financial informations and data of companies traded at NASDAQ or NYSE
 * 01_06_Pivot_BS_Data Pivots the BalanceSheet data from its vertical form into a horizontal form
+* 01_07_Analysis_BalanceSheet Example analysis on the BalanceSheet Dataset
 
 
 

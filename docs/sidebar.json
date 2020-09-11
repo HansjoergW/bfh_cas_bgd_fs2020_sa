@@ -8,6 +8,7 @@
     "01_03_Merge_To_Single_Parquet": "/03_Merge_To_Single_Parquet",
     "01_04_Analysis_Whole_Data": "/04_Analysis_Whole_Data",
     "01_05_Filter_And_Partition": "/05_Filter_And_Partition",
-    "01_06_Pivot_BS_Data": "/06_Pivot_BS_Data"
+    "01_06_Pivot_BS_Data": "/06_Pivot_BS_Data",
+    "01_07_Analysis_BalanceSheet": "/07_Analysis_BalanceSheet"
   }
 }

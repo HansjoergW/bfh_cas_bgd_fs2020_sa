@@ -33,6 +33,9 @@ entries:
     - output: web,pdf
       title: 01_06_Pivot_BS_Data
       url: /06_Pivot_BS_Data
+    - output: web,pdf
+      title: 01_07_Analysis_BalanceSheet
+      url: /07_Analysis_BalanceSheet
     output: web
     title: bfh_cas_bgd_fs2020_sa
   output: web
