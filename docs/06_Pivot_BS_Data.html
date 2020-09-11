@@ -395,7 +395,7 @@ But what we would like to have one entry per BalanceSheet:</p>
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Entries in Test:  1_680_108
-duration:  13.891040802001953
+duration:  13.733977556228638
 </pre>
 </div>
 </div>
@@ -430,7 +430,7 @@ duration:  13.891040802001953
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Entries in Test:  35_454_045
-duration:  224.06099796295166
+duration:  203.78116416931152
 </pre>
 </div>
 </div>
@@ -900,7 +900,7 @@ We stored the sorted list in the file "bs_tags.csv". No, we will load it and use
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_test_bs_ready</span> <span class="o">=</span> <span class="n">df_tst</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt = &#39;BS&#39; and period == ddate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;adsh&#39;</span><span class="p">,</span><span class="s1">&#39;period&#39;</span><span class="p">,</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;ddate&#39;</span><span class="p">,</span><span class="s1">&#39;value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_test_bs_ready</span> <span class="o">=</span> <span class="n">df_tst</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt = &#39;BS&#39; and period == ddate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;ticker&#39;</span><span class="p">,</span><span class="s1">&#39;adsh&#39;</span><span class="p">,</span><span class="s1">&#39;period&#39;</span><span class="p">,</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;ddate&#39;</span><span class="p">,</span><span class="s1">&#39;value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -1057,7 +1057,7 @@ We stored the sorted list in the file "bs_tags.csv". No, we will load it and use
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_bs_ready</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt = &#39;BS&#39; and period == ddate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;adsh&#39;</span><span class="p">,</span><span class="s1">&#39;period&#39;</span><span class="p">,</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;ddate&#39;</span><span class="p">,</span><span class="s1">&#39;value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_bs_ready</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;stmt = &#39;BS&#39; and period == ddate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;cik&#39;</span><span class="p">,</span><span class="s1">&#39;ticker&#39;</span><span class="p">,</span><span class="s1">&#39;adsh&#39;</span><span class="p">,</span><span class="s1">&#39;form&#39;</span><span class="p">,</span><span class="s1">&#39;period&#39;</span><span class="p">,</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span><span class="s1">&#39;value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -1140,7 +1140,7 @@ We stored the sorted list in the file "bs_tags.csv". No, we will load it and use
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_bs_pivot</span> <span class="o">=</span> <span class="n">df_all_bs_ready</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;period&quot;</span><span class="p">,</span><span class="s2">&quot;ddate&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span><span class="n">relevant_tags</span><span class="p">)</span> \
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_all_bs_pivot</span> <span class="o">=</span> <span class="n">df_all_bs_ready</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;cik&quot;</span><span class="p">,</span><span class="s2">&quot;ticker&quot;</span><span class="p">,</span><span class="s2">&quot;adsh&quot;</span><span class="p">,</span><span class="s2">&quot;form&quot;</span><span class="p">,</span><span class="s2">&quot;period&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span><span class="n">relevant_tags</span><span class="p">)</span> \
                                  <span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
 </pre></div>
 
@@ -1186,7 +1186,7 @@ We stored the sorted list in the file "bs_tags.csv". No, we will load it and use
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In order to have an easy way to have a look at the data with a texteditor, we convert it to a pandas Dataframe and store it as CSV. The resulting file size is now 54 MB.</p>
+<p>In order to have an easy way to look at the data with a texteditor, we convert it to a pandas Dataframe and store it as CSV. The resulting file size is now 54 MB.</p>
 
 </div>
 </div>
